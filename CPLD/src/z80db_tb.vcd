@@ -1,0 +1,279 @@
+$date
+	Sat Mar 30 01:54:12 2024
+$end
+$version
+	Icarus Verilog
+$end
+$timescale
+	10ps
+$end
+$scope module z80db_tb $end
+$var wire 8 ! D [7:0] $end
+$var wire 16 " adress [15:0] $end
+$var wire 1 # romblk $end
+$var wire 1 $ mwe $end
+$var wire 1 % moe $end
+$var wire 1 & mce $end
+$var wire 1 ' ma14 $end
+$var reg 8 ( A [7:0] $end
+$var reg 1 ) A14 $end
+$var reg 1 * A15 $end
+$var reg 6 + A_dummy [5:0] $end
+$var reg 8 , D_in [7:0] $end
+$var reg 1 - D_is_out $end
+$var reg 8 . D_out [7:0] $end
+$var reg 1 / bsrq $end
+$var reg 5 0 cnt [4:0] $end
+$var reg 1 1 iorq $end
+$var reg 1 2 jump $end
+$var reg 1 3 mreq $end
+$var reg 1 4 rd $end
+$var reg 1 5 reset $end
+$var reg 1 6 wr $end
+$scope module dut $end
+$var wire 8 7 A [7:0] $end
+$var wire 1 ) A14 $end
+$var wire 1 * A15 $end
+$var wire 8 8 D [7:0] $end
+$var wire 1 / bsrq $end
+$var wire 1 9 cash_mreq $end
+$var wire 1 : cash_rd $end
+$var wire 1 ; cash_wr $end
+$var wire 1 < iord $end
+$var wire 1 1 iorq $end
+$var wire 1 = iowr $end
+$var wire 1 2 jump $end
+$var wire 1 3 mreq $end
+$var wire 1 > p7ffd $end
+$var wire 1 ? p7ffdrd $end
+$var wire 1 4 rd $end
+$var wire 1 5 reset $end
+$var wire 1 # romblk $end
+$var wire 1 @ source $end
+$var wire 1 6 wr $end
+$var wire 1 $ mwe $end
+$var wire 1 % moe $end
+$var wire 1 & mce $end
+$var wire 1 ' ma14 $end
+$var wire 1 A cash_is_act_wr $end
+$var wire 1 B cash_is_act_rd $end
+$var wire 1 C cash_is_act_mreq $end
+$var reg 1 D cash $end
+$var reg 8 E reg_7ffd [7:0] $end
+$upscope $end
+$upscope $end
+$enddefinitions $end
+#0
+$dumpvars
+b0 E
+0D
+1C
+1B
+1A
+0@
+1?
+1>
+0=
+0<
+0;
+0:
+09
+b0 8
+b0 7
+06
+05
+04
+03
+02
+01
+b0 0
+0/
+b0 .
+0-
+b0 ,
+b0 +
+0*
+0)
+b0 (
+0'
+0&
+0%
+0$
+1#
+b0 "
+b0 !
+$end
+#1000
+1%
+1&
+1:
+19
+1<
+1$
+1=
+15
+13
+11
+14
+1;
+16
+bz !
+bz 8
+#2000
+05
+#3000
+15
+#4000
+05
+#5000
+15
+#19200
+0>
+b1010101 !
+b1010101 8
+1)
+b111111 +
+b111111111111101 "
+b11111101 (
+b11111101 7
+#20200
+0$
+0;
+06
+#21200
+1'
+b1010101 E
+0=
+01
+#22200
+1$
+1=
+1;
+16
+11
+#32200
+b11111111 !
+b11111111 8
+#33200
+0$
+0;
+06
+#34200
+b11111111 E
+0=
+01
+#35200
+1$
+1=
+1;
+16
+11
+#45200
+1>
+b11101110 !
+b11101110 8
+0)
+b11111101 "
+b0 +
+#46200
+0$
+0;
+06
+#47200
+0=
+01
+#48200
+1$
+1=
+1;
+16
+11
+#59200
+0'
+b0 E
+05
+#60200
+15
+#70200
+b11101110 !
+b11101110 8
+1*
+b101011 +
+b1010101110111010 "
+b10111010 (
+b10111010 7
+#71200
+0$
+0;
+06
+#72200
+0=
+01
+#73200
+1$
+1=
+1;
+16
+11
+#83200
+0>
+b1000 !
+b1000 8
+0*
+1)
+b111111 +
+b111111111111101 "
+b11111101 (
+b11111101 7
+#84200
+0$
+0;
+06
+#85200
+b1000 E
+0=
+01
+#86200
+1$
+1=
+1;
+16
+11
+#96200
+1-
+b0 !
+b0 8
+#97200
+04
+#98200
+b0x000 !
+b0x000 8
+0?
+0<
+01
+#99200
+b0x000 .
+#100200
+1>
+1?
+1<
+b11111111 !
+b11111111 8
+0)
+b0 +
+b0 "
+b0 (
+b0 7
+b10001 .
+14
+11
+#111200
+b0 E
+05
+#112200
+15
+#113200
+05
+#114200
+15
+#124200
