@@ -7,3 +7,5 @@
 /CPLD/db
 /CPLD/build
 /CPLD/z80io.qws
+/FW_experiments/build
+/FW_experiments/.vscode
