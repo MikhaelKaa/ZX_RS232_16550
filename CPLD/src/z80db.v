@@ -33,14 +33,15 @@ assign TX_3V  = TX_5V;
 reg ioge_filt = 1'b0;
 reg cs_filt = 1'b0;
 
-always @(negedge clk) begin
+always @(posedge clk) begin
 	ioge_filt = ioge_c;
 	cs_filt = iorq | ~(A == 8'hef);
 end
 
 wire ioge_c = (A == 8'hef);
 
-assign ioge = ioge_c;
+//assign ioge = ioge_c;
+assign ioge = ioge_filt;
 
 //assign tl_cs = iorq | ~(A == 8'hef);
 assign tl_cs = cs_filt;//
