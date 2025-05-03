@@ -46,7 +46,6 @@ $(BUILD_DIR)/main.ihx: $(OBJECTS)
 
 # Compile C sources
 $(BUILD_DIR)/%.rel: $(SRC_DIR)/%.c
-	@mkdir -p $(@D)
 	$(CC) -o $@ -c $(CFLAGS) $<
 
 # Assemble ASM sources
