@@ -1,6 +1,10 @@
 #include "main.h"
 
 void print(char x, char y, char* text) __naked {
+    (void)(x);
+    (void)(y);
+    (void)(text);
+    
     __asm
     ld iy, #2
     add iy, sp
