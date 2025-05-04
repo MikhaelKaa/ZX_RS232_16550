@@ -3,7 +3,7 @@ ifneq ($(shell uname), Linux)
 $(error OS must be Linux!)
 endif
 
-TARGET 		  = main
+TARGET        = main
 CODE_LOCATION = 0x6000
 DATA_LOCATION = 0x6000
 
@@ -16,10 +16,12 @@ K := $(foreach exec,$(REQUIRED),\
 ROOT        = $(realpath .)
 BUILD_DIR   = $(ROOT)/build
 SRC_DIR     = $(ROOT)/src
+ASSETS_DIR  = $(ROOT)/assets
 
 # Source files
 SRC         = $(wildcard $(SRC_DIR)/*.c)
 ASM_SRC     = $(SRC_DIR)/crt0.s
+FONT_SRC    = $(ASSETS_DIR)/font_en.ch8
 
 # Object files
 REL_FILES   = $(patsubst $(SRC_DIR)/%.c, $(BUILD_DIR)/%.rel, $(SRC))
@@ -44,8 +46,9 @@ $(BUILD_DIR)/main.bin: $(BUILD_DIR)/main.ihx
 $(BUILD_DIR)/main.ihx: $(OBJECTS)
 	$(CC) -o $@ $(LDFLAGS) $(CFLAGS) -Llib -llibsdcc-z80 $^
 
-# Compile C sources
-$(BUILD_DIR)/%.rel: $(SRC_DIR)/%.c
+# Compile C sources (with font.h dependency)
+$(BUILD_DIR)/%.rel: $(SRC_DIR)/%.c $(SRC_DIR)/font.h
+	@mkdir -p $(@D)
 	$(CC) -o $@ -c $(CFLAGS) $<
 
 # Assemble ASM sources
@@ -53,17 +56,16 @@ $(BUILD_DIR)/%.rel: $(SRC_DIR)/%.s
 	@mkdir -p $(@D)
 	$(AS) $(ASFLAGS) -o $@ $<
 
-.PHONY: clean
+# Generate font.h from font file
+$(SRC_DIR)/font.h: $(FONT_SRC)
+	@echo "Generating font.h"
+	@echo "const unsigned char font_data[] = {" > $@
+	@hexdump -v -e '8/1 "0x%02x, " "\n"' $< | sed 's/0x  ,//g' >> $@
+	@echo "};" >> $@
+# @echo "const unsigned int font_data_len = sizeof(font_data);" >> $@
+
 clean:
 	rm -rf $(BUILD_DIR)
 
-.PHONY: font
-font:
-	rm -f $(SRC_DIR)/font.h
-	touch $(SRC_DIR)/font.h
-	echo -n "const " >> $(SRC_DIR)/font.h
-	xxd -i $(SRC_DIR)/font_en.ch8 >> $(SRC_DIR)/font.h
-
-.PHONY: flash
 flash:
 	PCProg.exe COM18 $(BUILD_DIR)/main.bin

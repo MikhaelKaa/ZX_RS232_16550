@@ -36,7 +36,7 @@ print_string_loop:
     add hl, hl
     add hl, hl
     add hl, hl
-    ld bc, #_src_font_en_ch8 - #256 ;
+    ld bc, #_font_data - #256 ;
     add hl, bc
     push de
     call print_char
