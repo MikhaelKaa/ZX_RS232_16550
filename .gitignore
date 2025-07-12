@@ -9,3 +9,4 @@
 /CPLD/z80io.qws
 /FW_experiments/build
 /FW_experiments/.vscode
+FW_experiments/src/font.h

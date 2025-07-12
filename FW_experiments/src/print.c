@@ -1,6 +1,10 @@
 #include "main.h"
 
 void print(char x, char y, char* text) __naked {
+    (void)(x);
+    (void)(y);
+    (void)(text);
+    
     __asm
     ld iy, #2
     add iy, sp
@@ -32,7 +36,7 @@ print_string_loop:
     add hl, hl
     add hl, hl
     add hl, hl
-    ld bc, #_src_font_en_ch8 - #256 ;
+    ld bc, #_font_data - #256 ;
     add hl, bc
     push de
     call print_char

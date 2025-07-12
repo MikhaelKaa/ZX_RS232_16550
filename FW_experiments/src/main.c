@@ -24,6 +24,7 @@ void main() {
     port_0x7ffd = 0x00;
     uart_init();
     init_screen();
+    print(0, 1, "hello");
     uart_print("\r\n\r\n***********************\r\n");
     uart_print("init 0\r\n");
     for(char n = 0; n < 8; n++) {
