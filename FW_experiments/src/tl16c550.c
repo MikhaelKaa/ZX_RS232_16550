@@ -19,20 +19,20 @@ char uart_get(char* data) {
 
 // tl16c550 init.
 void uart_init(void) {
-    port_0xfcef = 0x0d; // Assert RTS
-    port_0xfaef = 0x87; // Enable fifo 8 level, and clear it
-    port_0xfbef = 0x83; // 8n1, DLAB=1
-    port_0xf8ef = 0x01; // 115200 (divider 1)
-    port_0xf9ef = 0x00; // (divider 0). Divider is 16 bit, so we get (0x0001 divider)
-    port_0xfbef = 0x03; // 8n1, DLAB=0
-    port_0xf9ef = 0x00; // Disable int
-    port_0xfcef = 0x2f; // Enable AFE
+    port_0xfcef = 0x0d; // Assert RTS                           64751 13
+    port_0xfaef = 0x87; // Enable fifo 8 level, and clear it    64239 135
+    port_0xfbef = 0x83; // 8n1, DLAB=1                          64495 131
+    port_0xf8ef = 0x01; // 115200 (divider 1)                   63727 1
+    port_0xf9ef = 0x00; // (divider 0).                         63983 0
+    port_0xfbef = 0x03; // 8n1, DLAB=0                          64495 3
+    port_0xf9ef = 0x00; // Disable int                          63983 0
+    port_0xfcef = 0x2f; // Enable AFE                           64751 47
 }
 
 void uart_print(char* text) {
     char ii = 0;
     while(*(text+ii) != 0) {
-        port_0xf8ef = *(text+ii++);
+        port_0xf8ef = *(text+ii++); // 63727
         delay(10);
     }
 }
