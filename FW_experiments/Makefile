@@ -5,7 +5,7 @@ endif
 
 TARGET        = main
 CODE_LOCATION = 0x0000
-DATA_LOCATION = 0x3000
+DATA_LOCATION = 0x3500
 
 # Check if all required tools are on the system.
 REQUIRED = sdcc sdar sdasz80
@@ -31,7 +31,7 @@ OBJECTS     = $(ASM_OBJ) $(REL_FILES)
 # Global settings: tools.
 CC          = sdcc
 AS          = sdasz80
-CFLAGS      = --std-c11 -mz80 --debug --nostdinc --no-std-crt0 --nostdlib 
+CFLAGS      = --std-c11 -mz80 --debug --nostdinc --no-std-crt0 --nostdlib -DBAREMETAL
 ASFLAGS     = -xlos -g
 LDFLAGS     = -mz80 -Wl -y --code-loc $(CODE_LOCATION) --data-loc $(DATA_LOCATION)
 

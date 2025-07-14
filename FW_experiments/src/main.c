@@ -3,6 +3,8 @@
 #include "main.h"
 #include "font.h"
 #include "tl16c550.h"
+#include "ucmd.h"
+#include "memory_man.h"
 
 #define SCREEN_START_ADR (0x4000)
 #define SCREEN_SIZE ((256/8)*192)
@@ -18,6 +20,22 @@ static volatile char irq_0x38_flag = 0;
 static volatile char nmi_0x66_flag = 0;
 char msg[] = "Hello world!!!";
 
+
+// Пример cmd_list.
+command_t cmd_list[] = {
+  {
+    .cmd  = "help",
+    .help = "print available commands with their help text",
+    .fn   = print_help_cb,
+  },
+  {
+    .cmd  = "mem",
+    .help = "mem",
+    .fn   = ucmd_mem,
+  },
+  {0} // null list terminator DON'T FORGET THIS!
+};
+
 void main() {
     uart_init();
     
@@ -29,11 +47,12 @@ void main() {
     printf("test s %s\r\n", msg);
     printf("test c %c\r\n", 'U');
     printf("test s&d %s %d\r\n", msg, 73);
-    
+    ucmd_default_init();
 
     while(1) {
         // *(screen + 4) = key[0];
         // *(screen + 6) = key[1];
+        ucmd_default_proc();
 
         if(irq_0x38_flag) {
             irq_0x38_flag = 0;
@@ -47,14 +66,14 @@ void main() {
             *(screen + 2) = i;
         }
 
-        char tmp;
-        char tmp_scr[] = " ";
+        // char tmp;
+        // char tmp_scr[] = " ";
 
-        if(getchar(&tmp) == 0) {
-            printf("%c", tmp);
-            tmp_scr[0] = tmp;
-            print(0, 1, tmp_scr);
-        } 
+        // if(getchar(&tmp) == 0) {
+        //     printf("%c", tmp);
+        //     tmp_scr[0] = tmp;
+        //     print(0, 1, tmp_scr);
+        // } 
     }
 }
 
