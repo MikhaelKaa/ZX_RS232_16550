@@ -4,8 +4,8 @@ $(error OS must be Linux!)
 endif
 
 TARGET        = main
-CODE_LOCATION = 0x6000
-DATA_LOCATION = 0x6000
+CODE_LOCATION = 0x0000
+DATA_LOCATION = 0x3000
 
 # Check if all required tools are on the system.
 REQUIRED = sdcc sdar sdasz80
@@ -31,7 +31,7 @@ OBJECTS     = $(ASM_OBJ) $(REL_FILES)
 # Global settings: tools.
 CC          = sdcc
 AS          = sdasz80
-CFLAGS      = --std-c11 -mz80 --debug --nostdinc --no-std-crt0 --nostdinc --nostdlib
+CFLAGS      = --std-c11 -mz80 --debug --nostdinc --no-std-crt0 --nostdlib 
 ASFLAGS     = -xlos -g
 LDFLAGS     = -mz80 -Wl -y --code-loc $(CODE_LOCATION) --data-loc $(DATA_LOCATION)
 
@@ -68,4 +68,4 @@ clean:
 	rm -rf $(BUILD_DIR)
 
 flash:
-	PCProg.exe COM18 $(BUILD_DIR)/main.bin
+	PCProg.exe COM18 build/main.bin

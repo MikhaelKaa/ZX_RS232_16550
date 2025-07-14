@@ -16,39 +16,24 @@ char i = 0;
 char key[8] = {0, 0, 0, 0, 0, 0, 0, 0};
 static volatile char irq_0x38_flag = 0;
 static volatile char nmi_0x66_flag = 0;
-char msg[] = "Hello world!!!\r\n";
-
-
+char msg[] = "Hello world!!!";
 
 void main() {
-    port_0x7ffd = 0x00;
     uart_init();
+    
     init_screen();
-    print(0, 1, "hello");
-    uart_print("\r\n\r\n***********************\r\n");
-    uart_print("init 0\r\n");
-    for(char n = 0; n < 8; n++) {
-        uart_print("port_0xeff7 = 0x00 (7000kHz CPU clock)\r\n");
-        port_0xeff7 = 0x00;
-        delay(32768);
-        
-        uart_print("port_0xeff7 = 0x10 (3500kHz CPU clock)\r\n");
-        port_0xeff7 = 0x10; 
-        delay(16384);     
-    }
-    uart_print("test end\r\n");
-    //print(10, 10, msg);
-
-    // PSG init
-    port_0xfffd = 0x07;
-    port_0xbffd = 0x38;
-    port_0xfffd = 0x08;
-    port_0xbffd = 0x0a;
-
+    printf("\r\n\r\n***********************\r\n");
+    printf("init 0\r\n");
+    printf("Its work!!!\r\n");
+    printf("test d %d\r\n", 42);
+    printf("test s %s\r\n", msg);
+    printf("test c %c\r\n", 'U');
+    printf("test s&d %s %d\r\n", msg, 73);
+    
 
     while(1) {
-        //*(screen + 4) = key[0];
-        //*(screen + 6) = key[1];
+        // *(screen + 4) = key[0];
+        // *(screen + 6) = key[1];
 
         if(irq_0x38_flag) {
             irq_0x38_flag = 0;
@@ -62,16 +47,16 @@ void main() {
             *(screen + 2) = i;
         }
 
-        char tmp[] = " ";
-        //uart_get(&tmp);
-        if(uart_get(&tmp[0]) == 0) {
-            uart_print(tmp);
-            print(0, 1, tmp);
+        char tmp;
+        char tmp_scr[] = " ";
+
+        if(getchar(&tmp) == 0) {
+            printf("%c", tmp);
+            tmp_scr[0] = tmp;
+            print(0, 1, tmp_scr);
         } 
     }
 }
-
-
 
 void init_screen(void) {
     port_0x00fe = 7;
@@ -83,8 +68,6 @@ void init_screen(void) {
     }
     port_0x00fe = 0;
 }
-
-
 
 volatile void irq_0x38(void) {
     irq_0x38_flag = 1;
