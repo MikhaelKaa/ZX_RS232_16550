@@ -13,6 +13,7 @@
     #define __naked
     #define __asm
     #define __endasm
+    #define jp
     
     #define ds
     #define nop

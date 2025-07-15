@@ -7,6 +7,7 @@
 #include "ucmd.h"
 #include "memory_man.h"
 #include "z80_ports.h"
+#include "defines.h"
 
 #define SCREEN_START_ADR (0x4000)
 #define SCREEN_SIZE ((256/8)*192)
