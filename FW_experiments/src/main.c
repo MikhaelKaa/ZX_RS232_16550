@@ -6,6 +6,7 @@
 #include "printf.h"
 #include "ucmd.h"
 #include "memory_man.h"
+#include "z80_ports.h"
 
 #define SCREEN_START_ADR (0x4000)
 #define SCREEN_SIZE ((256/8)*192)
@@ -33,6 +34,11 @@ command_t cmd_list[] = {
     .cmd  = "mem",
     .help = "mem",
     .fn   = ucmd_mem,
+  },
+  {
+    .cmd  = "port",
+    .help = "port",
+    .fn   = ucmd_port,
   },
   {0} // null list terminator DON'T FORGET THIS!
 };

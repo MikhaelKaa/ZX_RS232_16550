@@ -31,9 +31,11 @@ OBJECTS     = $(ASM_OBJ) $(REL_FILES)
 # Global settings: tools.
 CC          = sdcc
 AS          = sdasz80
-CFLAGS      = --std-c11 -mz80 --debug --nostdinc --no-std-crt0 --nostdlib -DBAREMETAL
+CFLAGS      = --std-c11 -mz80 --debug --nostdinc --no-std-crt0 --nostdlib
 ASFLAGS     = -xlos -g
 LDFLAGS     = -mz80 -Wl -y --code-loc $(CODE_LOCATION) --data-loc $(DATA_LOCATION)
+
+CFLAGS      += -DBAREMETAL
 
 .PHONY: all
 all: $(BUILD_DIR)/main.bin
