@@ -144,8 +144,8 @@ gsinit_none:
     ;; this is where we store the stack pointer
 __store_sp:	
     .word 1
-    ;; 2048 bytes of operating system stack
-    .ds	2048
+    ;; 4096 bytes of operating system stack
+    .ds	4096
 __stack::
     .area _HEAP
 __heap::

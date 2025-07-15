@@ -3,6 +3,7 @@
 #include "main.h"
 #include "font.h"
 #include "tl16c550.h"
+#include "printf.h"
 #include "ucmd.h"
 #include "memory_man.h"
 
@@ -50,8 +51,6 @@ void main() {
     ucmd_default_init();
 
     while(1) {
-        // *(screen + 4) = key[0];
-        // *(screen + 6) = key[1];
         ucmd_default_proc();
 
         if(irq_0x38_flag) {
@@ -65,15 +64,6 @@ void main() {
             nmi_0x66_flag = 0;
             *(screen + 2) = i;
         }
-
-        // char tmp;
-        // char tmp_scr[] = " ";
-
-        // if(getchar(&tmp) == 0) {
-        //     printf("%c", tmp);
-        //     tmp_scr[0] = tmp;
-        //     print(0, 1, tmp_scr);
-        // } 
     }
 }
 
@@ -105,5 +95,3 @@ volatile void irq_0x38(void) {
 volatile void nmi_0x66(void) {
     nmi_0x66_flag = 1;
 }
-
-// https://gist.github.com/Konamiman/af5645b9998c802753023cf1be8a2970

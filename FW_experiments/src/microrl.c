@@ -7,6 +7,8 @@ BUGS and TODO:
 
 #include "string_custom.h"
 #include "tl16c550.h"
+#include "printf.h"
+
 // #include <ctype.h>
 // #include <stdlib.h>
 #include "microrl.h"

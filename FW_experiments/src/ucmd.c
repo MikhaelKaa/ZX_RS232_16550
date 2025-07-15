@@ -6,7 +6,7 @@
 #include "term_gxf.h"
 #include "ucmd.h"
 #include "microrl.h"
-#include "microrl.h"
+#include "printf.h"
 
 int ucmd_parse(command_t cmd_list[], int argc, const char **argv)
 {
@@ -75,6 +75,9 @@ int ucmd_execute(int argc, char **argv) {
 
 int print_help_cb(int argc, char *argv[])
 {
+  (void)(argc);
+  (void)(argv);
+  
   command_t *p = cmd_list;
   while (p->cmd) {
     printf("%s \t%s\r\n", p->cmd, p->help);

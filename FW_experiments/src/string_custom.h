@@ -24,10 +24,11 @@ typedef signed char int8_t;
 typedef unsigned short uint16_t;
 typedef short int16_t;
 
+
 // 
-// #ifndef INT_MIN
+#ifndef INT_MIN
 #define INT_MIN (-32768)  // Для 16-битных систем (Z80)
-// #endif
+#endif
 
 #endif // __STRING_H__
 

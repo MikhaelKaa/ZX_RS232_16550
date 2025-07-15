@@ -5,10 +5,10 @@
  * @date 21.06.2025
  */
 
-// #include <stdio.h>
-// #include <stdint.h>
-// #include <string.h>
+//  * 15.07.2025 - z80 version
+
 #include "string_custom.h"
+#include "printf.h"
 #include "tl16c550.h"
 #include "errno.h"
 
@@ -121,7 +121,7 @@ static void mem_dump(uint8_t *buf, uint16_t len) {
     
     while (i < len) {
         /* Print address at start of each line */
-        printf("0x%08lx: ", (unsigned long)current_addr);
+        printf("0x%04x: ", (unsigned long)current_addr);
         
         /* Print hex values */
         uint16_t bytes_printed = 0;
@@ -148,7 +148,7 @@ static void mem_dump(uint8_t *buf, uint16_t len) {
 }
 
 static uint16_t mem_test(uint8_t *buf, uint16_t len) {
-    uint16_t error_count = 0;
+    volatile uint16_t error_count = 0;
     volatile uint8_t *b = buf;
     const uint8_t patterns[] = {0x00, 0x55, 0xAA, 0xFF};
     const int num_patterns = sizeof(patterns) / sizeof(patterns[0]);
@@ -160,43 +160,43 @@ static uint16_t mem_test(uint8_t *buf, uint16_t len) {
     }
 
     for (uint16_t i = 0; i < len; i++) {
-        uint8_t original = b[i];
+        volatile uint8_t original = b[i];
 
         /* Test patterns */
         for (int p = 0; p < num_patterns; p++) {
-            uint8_t test_val = patterns[p];
+            volatile uint8_t test_val = patterns[p];
             b[i] = test_val;
             
             if (b[i] != test_val) {
                 if (error_count < max_errors_to_print) {
-                    printf("ERROR @ 0x%08lx: Wrote 0x%02X, Read 0x%02X" ENDL, 
-                          (unsigned long)(b + i), test_val, b[i]);
+                    printf("ERROR @ 0x%04x: Wrote 0x%02x, Read 0x%02x" ENDL, 
+                          (b + i), test_val, b[i]);
                 }
                 error_count++;
             }
         }
 
         /* Restore original value */
-        b[i] = original;
+        b[i] = *(&original);
         if (b[i] != original) {
             if (error_count < max_errors_to_print) {
-                printf("RESTORE ERROR @ 0x%08lx! Original: 0x%02X, Current: 0x%02X" ENDL,
-                      (unsigned long)(b + i), original, b[i]);
+                printf("RESTORE ERROR @ 0x%04x! Original: 0x%02x, Current: 0x%02x" ENDL,
+                      (b + i), original, b[i]);
             }
             error_count++;
         }
 
         /* Progress indicator */
         if ((i % 8192) == 0) {
-            printf("Tested %lu/%lu bytes (errors: %lu)" ENDL, i, len, error_count);
+            printf("Tested %u/%u bytes (errors: %u)" ENDL, i, len, error_count);
         }
     }
 
     /* Final report */
     if (error_count == 0) {
-        printf("Memory test PASSED: %lu bytes" ENDL, len);
+        printf("Memory test PASSED: %u bytes" ENDL, len);
     } else {
-        printf("Memory test FAILED! Errors: %lu/%lu bytes" ENDL, error_count, len);
+        printf("Memory test FAILED! Errors: %u/%u bytes" ENDL, error_count, len);
     }
     
     return error_count;

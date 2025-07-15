@@ -6,4 +6,6 @@ typedef unsigned char *va_list;
 #define va_arg(ap, type)   (*(type *)((ap += sizeof(type)) - sizeof(type)))
 #define va_end(ap)         ((void)0)
 
+#define NULL ((void*)0) // 
+
 #endif // __ARG_H__
