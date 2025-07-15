@@ -8,4 +8,5 @@ typedef unsigned char *va_list;
 
 #define NULL ((void*)0) // 
 
+
 #endif // __ARG_H__

@@ -1,7 +1,7 @@
 // 15.04.2024 Михаил Каа
 
 #include "main.h"
-#include "font.h"
+// #include "font.h"
 #include "tl16c550.h"
 #include "printf.h"
 #include "ucmd.h"
@@ -22,6 +22,23 @@ static volatile char irq_0x38_flag = 0;
 static volatile char nmi_0x66_flag = 0;
 char msg[] = "Hello world!!!";
 
+int scr(int argc, char *argv[]) {
+    for(int i = 0; i < argc; i++){
+        fprintf(4, "%s ", argv[i]);
+    }
+    fprintf(4, "\r\n");
+    return 0;
+}
+
+int reset(int argc, char *argv[]) {
+    (void)(argc);
+    (void)(argv);
+    
+    __asm
+    jp 0
+    __endasm;
+    return -1;
+}
 
 // Пример cmd_list.
 command_t cmd_list[] = {
@@ -39,6 +56,16 @@ command_t cmd_list[] = {
     .cmd  = "port",
     .help = "port",
     .fn   = ucmd_port,
+  },
+  {
+    .cmd  = "scr",
+    .help = "scr",
+    .fn   = scr,
+  },
+    {
+    .cmd  = "reset",
+    .help = "reset",
+    .fn   = reset,
   },
   {0} // null list terminator DON'T FORGET THIS!
 };

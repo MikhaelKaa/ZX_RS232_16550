@@ -7,6 +7,7 @@
 #include "ucmd.h"
 #include "microrl.h"
 #include "printf.h"
+#include "printf_zx_scr.h"
 
 int ucmd_parse(command_t cmd_list[], int argc, const char **argv)
 {
@@ -118,7 +119,7 @@ void ucmd_default_proc(void) {
   // scanf("%c", &ucmd_default_rx);
 
   if(getchar(&ucmd_default_rx) == 0) {
-    // printf("%c", ucmd_default_rx);
+    // if(IS_CONTROL_CHAR(ucmd_default_rx))putchar_zx_scr(ucmd_default_rx);
     microrl_insert_char(&default_rl, ucmd_default_rx);
   } 
 }

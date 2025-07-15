@@ -1,6 +1,8 @@
 
 #include "arg.h"
 #include "tl16c550.h"
+#include "printf_zx_scr.h"
+#include "string_custom.h"
 
 // Тип функции для вывода символа с контекстом
 typedef void (*putchar_func_t)(char c, void* ctx);
@@ -108,12 +110,31 @@ static void vprintf_core(putchar_func_t putchar_func, void* ctx, const char *fmt
 static void uart_putchar_wrapper(char c, void* ctx) {
     (void)ctx;
     putchar(c);
+    putchar_zx_scr(c);
+}
+
+// Обертка для вывода в ZX SCREEN
+static void zxscr_putchar_wrapper(char c, void* ctx) {
+    (void)ctx;
+    if(IS_CONTROL_CHAR(c))putchar_zx_scr(c);
 }
 
 void printf(const char *fmt, ...) {
     va_list args;
     va_start(args, fmt);
     vprintf_core(uart_putchar_wrapper, NULL, fmt, args);
+    va_end(args);
+}
+
+void fprintf(int file, const char *fmt, ...) {
+    va_list args;
+    va_start(args, fmt);
+    if(file == 0 || file == 1 ||file == 2 ){
+        vprintf_core(uart_putchar_wrapper, NULL, fmt, args);
+    } else if(file == 4) {
+        vprintf_core(zxscr_putchar_wrapper, NULL, fmt, args);
+    }
+
     va_end(args);
 }
 

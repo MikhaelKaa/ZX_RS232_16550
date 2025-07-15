@@ -30,6 +30,8 @@ typedef short int16_t;
 #define INT_MIN (-32768)  // Для 16-битных систем (Z80)
 #endif
 
+#define IS_CONTROL_CHAR(x) ((x)<=31)
+
 #endif // __STRING_H__
 
 
