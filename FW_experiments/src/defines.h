@@ -21,4 +21,6 @@
     #define iy
 #endif
 
+// #define uint8_t unsigned char
+
 #endif /* __DEFINES__ */

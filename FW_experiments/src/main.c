@@ -8,6 +8,7 @@
 #include "memory_man.h"
 #include "z80_ports.h"
 #include "defines.h"
+#include "string_custom.h"
 
 #define SCREEN_START_ADR (0x4000)
 #define SCREEN_SIZE ((256/8)*192)
@@ -15,12 +16,111 @@
 
 void init_screen(void);
 
+
 char *screen = 0x4000;
 char w = 0;
 char i = 0;
-char key[8] = {0, 0, 0, 0, 0, 0, 0, 0};
+// Глобальные переменные
+volatile uint8_t key_current[8];
+volatile uint8_t key_last[8] = {0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF};
+volatile uint8_t caps_shift = 0;
+volatile uint8_t sym_shift = 0;
+
+// Буфер для ASCII символов
+#define KEYBUF_SIZE 32
+volatile uint8_t keybuf[KEYBUF_SIZE];
+volatile uint8_t keybuf_head = 0;
+volatile uint8_t keybuf_tail = 0;
+
+// Таблица преобразования клавиш в ASCII
+const uint8_t keymap[8][5] = {
+    // Row 0: SPACE, SYM, M, N, B (порт 0x7ffe)
+    {' ',  0,  'm', 'n', 'b'},
+    // Row 1: 0, 9, 8, 7, 6 (порт 0xeffe)
+    {'0', '9', '8', '7', '6'},
+    // Row 2: ENTER, L, K, J, H (порт 0xbffe)
+    {'\n','l', 'k', 'j', 'h'},
+    // Row 3: P, O, I, U, Y (порт 0xdffe)
+    {'p', 'o', 'i', 'u', 'y'},
+    // Row 4: 1, 2, 3, 4, 5 (порт 0xf7fe)
+    {'1', '2', '3', '4', '5'},
+    // Row 5: CAPS, Z, X, C, V (порт 0xfefe)
+    { 0,  'z', 'x', 'c', 'v'},
+    // Row 6: Q, W, E, R, T (порт 0xfbfe)
+    {'q', 'w', 'e', 'r', 't'},
+    // Row 7: A, S, D, F, G (порт 0xfdfe)
+    {'a', 's', 'd', 'f', 'g'}
+};
+
+
+// Функция обработки символа (должна быть реализована)
+void process_key(uint8_t ascii) {
+    // Добавление символа в кольцевой буфер
+    uint8_t next_head = (keybuf_head + 1) % KEYBUF_SIZE;
+    if(next_head != keybuf_tail) {
+        keybuf[keybuf_head] = ascii;
+        keybuf_head = next_head;
+    }
+}
+
+// Преобразование позиции клавиши в ASCII
+uint8_t key_to_ascii(uint8_t row, uint8_t bit) {
+    uint8_t ch = keymap[row][bit];
+    
+    if (sym_shift) {
+        // Обработка SYM SHIFT для цифр и специальных символов
+        switch (ch) {
+            case '0': return '_';
+            case '1': return '!';
+            case '2': return '@';
+            case '3': return '#';
+            case '4': return '$';
+            case '5': return '%';
+            case '6': return '&';
+            case '7': return '\'';
+            case '8': return '(';
+            case '9': return ')';
+            case 'k': return '+';
+            case 'l': return '=';
+            case 'm': return '?';
+            case 'n': return ',';
+            case 'b': return '*';
+            case 'h': return '\\';
+            case 'j': return '-';
+            case 'u': return '<';
+            case 'i': return '>';
+            case 'o': return '[';
+            case 'p': return ']';
+            case 'y': return '{';
+            case 't': return '}';
+            case 'r': return '~';
+            case 'e': return '^';
+            case 'w': return '|';
+            case 'q': return '`';
+            case 'a': return ':';
+            case 's': return ';';
+            case 'd': return '"';
+            case 'f': return '/';
+            case 'g': return '=';
+            case 'v': return '.';
+            case 'c': return ',';
+            case 'x': return '?';
+            case 'z': return '!';
+            default: break;
+        }
+    }
+    
+    // Обработка CAPS SHIFT для букв
+    if (ch >= 'a' && ch <= 'z' && caps_shift) {
+        return ch - 32; // Преобразование в верхний регистр
+    }
+    
+    return ch;
+}
+
 static volatile char irq_0x38_flag = 0;
 static volatile char nmi_0x66_flag = 0;
+
 char msg[] = "Hello world!!!";
 
 int scr(int argc, char *argv[]) {
@@ -88,15 +188,28 @@ void main() {
         ucmd_default_proc();
 
         if(irq_0x38_flag) {
-            irq_0x38_flag = 0;
-            *(screen + 0) = i++;
-            port_0xfffd = 0x00;
-            port_0xbffd = i;
+          // irq_0x38_flag = 0;
+          // for(int n = 0; n < 8; n++) {
+          //   key[n] &= 31;
+          //   if(key[n] != key_last[n]) {
+          //     printf("key[%d] = %d\r\n", n, key[n]);
+          //     key_last[n] = key[n];
+          //   }
+          // }
+        }
+
+        // Чтение из буфера в основном цикле
+        if(keybuf_tail != keybuf_head) {
+            uint8_t ascii = keybuf[keybuf_tail];
+            keybuf_tail = (keybuf_tail + 1) % KEYBUF_SIZE;
+            // printf("new char\r\n");
+            printf("%c", ascii);
         }
 
         if(nmi_0x66_flag) {
             nmi_0x66_flag = 0;
             *(screen + 2) = i;
+            printf("nmi\r\n");
         }
     }
 }
@@ -112,18 +225,50 @@ void init_screen(void) {
     port_0x00fe = 0;
 }
 
+// Обработчик прерывания
 volatile void irq_0x38(void) {
-    irq_0x38_flag = 1;
+  irq_0x38_flag = 1;
 
-    key[0] = port_0x7ffe;
-    key[1] = port_0xeffe;
-    key[2] = port_0xbffe;
-    key[3] = port_0xdffe;
-    key[4] = port_0xf7fe;
-    key[5] = port_0xfefe;
-    key[6] = port_0xfbfe;
-    key[7] = port_0xfdfe;
+  // Чтение всех строк клавиатуры
+  key_current[0] = port_0x7ffe & 0x1F;
+  key_current[1] = port_0xeffe & 0x1F;
+  key_current[2] = port_0xbffe & 0x1F;
+  key_current[3] = port_0xdffe & 0x1F;
+  key_current[4] = port_0xf7fe & 0x1F;
+  key_current[5] = port_0xfefe & 0x1F;
+  key_current[6] = port_0xfbfe & 0x1F;
+  key_current[7] = port_0xfdfe & 0x1F;
 
+  // Обновление модификаторов
+  caps_shift = !(key_current[5] & 0x01); // CAPS SHIFT в row5, bit0
+  sym_shift = !(key_current[0] & 0x02);  // SYM SHIFT в row0, bit1
+
+  // Обработка изменений клавиш
+  for(uint8_t row = 0; row < 8; row++) {
+      uint8_t current = key_current[row];
+      uint8_t last = key_last[row];
+      uint8_t diff = current ^ last;
+      
+      if(diff) {
+          for(uint8_t bit = 0; bit < 5; bit++) {
+              uint8_t mask = 1 << bit;
+              
+              // Проверка изменения бита
+              if(diff & mask) {
+                  // Обнаружено нажатие (0 - нажата)
+                  if(!(current & mask)) {
+                      uint8_t ascii = key_to_ascii(row, bit);
+                      
+                      // Игнорировать специальные клавиши (0 в таблице)
+                      if(ascii) {
+                          process_key(ascii);
+                      }
+                  }
+              }
+          }
+          key_last[row] = current;
+      }
+  }
 }
 
 volatile void nmi_0x66(void) {

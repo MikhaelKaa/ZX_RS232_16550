@@ -5,7 +5,7 @@ endif
 
 TARGET        = main
 CODE_LOCATION = 0x0000
-DATA_LOCATION = 0x8000
+DATA_LOCATION = 0xa000
 
 # Check if all required tools are on the system.
 REQUIRED = sdcc sdar sdasz80

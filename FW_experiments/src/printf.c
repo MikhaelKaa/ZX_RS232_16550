@@ -110,7 +110,7 @@ static void vprintf_core(putchar_func_t putchar_func, void* ctx, const char *fmt
 static void uart_putchar_wrapper(char c, void* ctx) {
     (void)ctx;
     putchar(c);
-    putchar_zx_scr(c);
+    // putchar_zx_scr(c);
 }
 
 // Обертка для вывода в ZX SCREEN
