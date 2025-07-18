@@ -9,12 +9,57 @@
 #include "z80_ports.h"
 #include "defines.h"
 #include "string_custom.h"
+#include "printf_zx_scr.h"
+#include "microrl.h"
+#include "term_gxf.h"
 
 #define SCREEN_START_ADR (0x4000)
 #define SCREEN_SIZE ((256/8)*192)
 #define SCREEN_ATR_SIZE (768)
 
 void init_screen(void);
+
+
+static microrl_t zx_rl;
+static volatile uint8_t ucmd_zx_rx;
+void ucmd_zx_print(const char * str) {
+  fprintf(4, "%s", str);
+}
+  
+void ucmd_zx_sigint(void) {
+  fprintf(4, "ucmd_zx_sigint\r\n");
+}
+
+extern command_t cmd_list[];
+
+int ucmd_zx_execute(int argc, char **argv) {
+  int ret = 0;
+  ret = ucmd_parse(cmd_list, argc, (const char **)argv);
+  if(ret == UCMD_CMD_NOT_FOUND){
+    static uint8_t gssu = 0;
+    if(gssu++ < 6)  {
+      fprintf(4, "unknown command");
+      for(int i = 0; i < argc; i++) {
+        fprintf(4, " %s", (char*)&argv[i][0]);
+      }
+      fprintf(4, ", try help\r\n");
+    } else {
+      gssu = 0;
+      set_display_atrib(F_RED);
+      fprintf(4, "GO SLEEP, STUPID USER!\r\n");
+      resetcolor();
+    }
+  }
+  return ret; 
+}
+
+void ucmd_zx_init(void) {
+  ucmd_zx_rx = 0;
+  microrl_init(&zx_rl, ucmd_zx_print);
+  microrl_set_execute_callback(&zx_rl, (int (*)(int, const char * const*))ucmd_zx_execute);
+  microrl_set_sigint_callback(&zx_rl, ucmd_zx_sigint);
+  microrl_insert_char(&zx_rl, '\n');
+}
 
 
 char *screen = 0x4000;
@@ -53,7 +98,7 @@ const uint8_t keymap[8][5] = {
 };
 
 
-// Функция обработки символа (должна быть реализована)
+// Функция обработки символа
 void process_key(uint8_t ascii) {
     // Добавление символа в кольцевой буфер
     uint8_t next_head = (keybuf_head + 1) % KEYBUF_SIZE;
@@ -118,6 +163,16 @@ uint8_t key_to_ascii(uint8_t row, uint8_t bit) {
     return ch;
 }
 
+
+void ucmd_zx_proc(void) {
+  // Чтение из буфера
+  if(keybuf_tail != keybuf_head) {
+      uint8_t ascii = keybuf[keybuf_tail];
+      keybuf_tail = (keybuf_tail + 1) % KEYBUF_SIZE;
+      microrl_insert_char(&zx_rl, ascii);
+  }
+}
+
 static volatile char irq_0x38_flag = 0;
 static volatile char nmi_0x66_flag = 0;
 
@@ -170,7 +225,6 @@ command_t cmd_list[] = {
   },
   {0} // null list terminator DON'T FORGET THIS!
 };
-
 void main() {
     uart_init();
     
@@ -183,28 +237,41 @@ void main() {
     printf("test c %c\r\n", 'U');
     printf("test s&d %s %d\r\n", msg, 73);
     ucmd_default_init();
-
+    ucmd_zx_init();
     while(1) {
         ucmd_default_proc();
 
-        if(irq_0x38_flag) {
-          // irq_0x38_flag = 0;
-          // for(int n = 0; n < 8; n++) {
-          //   key[n] &= 31;
-          //   if(key[n] != key_last[n]) {
-          //     printf("key[%d] = %d\r\n", n, key[n]);
-          //     key_last[n] = key[n];
-          //   }
-          // }
+        if(irq_0x38_flag == 1) {
+            irq_0x38_flag = 0;
+
+            for(uint8_t row = 0; row < 8; row++) {
+                uint8_t current = key_current[row];
+                uint8_t last = key_last[row];
+                uint8_t diff = current ^ last;
+                
+                if(diff) {
+                    for(uint8_t bit = 0; bit < 5; bit++) {
+                        uint8_t mask = 1 << bit;
+                        
+                        // Проверка изменения бита
+                        if(diff & mask) {
+                            // Обнаружено нажатие (0 - нажата)
+                            if(!(current & mask)) {
+                                uint8_t ascii = key_to_ascii(row, bit);
+                                
+                                // Игнорировать специальные клавиши (0 в таблице)
+                                if(ascii) {
+                                    process_key(ascii);
+                                }
+                            }
+                        }
+                    }
+                    key_last[row] = current;
+                }
+            }
         }
 
-        // Чтение из буфера в основном цикле
-        if(keybuf_tail != keybuf_head) {
-            uint8_t ascii = keybuf[keybuf_tail];
-            keybuf_tail = (keybuf_tail + 1) % KEYBUF_SIZE;
-            // printf("new char\r\n");
-            printf("%c", ascii);
-        }
+        ucmd_zx_proc();
 
         if(nmi_0x66_flag) {
             nmi_0x66_flag = 0;
@@ -242,33 +309,6 @@ volatile void irq_0x38(void) {
   // Обновление модификаторов
   caps_shift = !(key_current[5] & 0x01); // CAPS SHIFT в row5, bit0
   sym_shift = !(key_current[0] & 0x02);  // SYM SHIFT в row0, bit1
-
-  // Обработка изменений клавиш
-  for(uint8_t row = 0; row < 8; row++) {
-      uint8_t current = key_current[row];
-      uint8_t last = key_last[row];
-      uint8_t diff = current ^ last;
-      
-      if(diff) {
-          for(uint8_t bit = 0; bit < 5; bit++) {
-              uint8_t mask = 1 << bit;
-              
-              // Проверка изменения бита
-              if(diff & mask) {
-                  // Обнаружено нажатие (0 - нажата)
-                  if(!(current & mask)) {
-                      uint8_t ascii = key_to_ascii(row, bit);
-                      
-                      // Игнорировать специальные клавиши (0 в таблице)
-                      if(ascii) {
-                          process_key(ascii);
-                      }
-                  }
-              }
-          }
-          key_last[row] = current;
-      }
-  }
 }
 
 volatile void nmi_0x66(void) {

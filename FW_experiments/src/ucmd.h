@@ -31,6 +31,7 @@ void default_sigint(void);
 
 void ucmd_set_sigint(void (*sigintf)(void));
 void default_sigint(void);
+int ucmd_execute(int argc, char **argv);
 
 // https://github.com/thefekete/uCmd
 

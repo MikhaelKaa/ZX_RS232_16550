@@ -116,7 +116,8 @@ static void uart_putchar_wrapper(char c, void* ctx) {
 // Обертка для вывода в ZX SCREEN
 static void zxscr_putchar_wrapper(char c, void* ctx) {
     (void)ctx;
-    if(IS_CONTROL_CHAR(c))putchar_zx_scr(c);
+    // if(IS_CONTROL_CHAR(c))putchar_zx_scr(c);
+    putchar_zx_scr(c);
 }
 
 void printf(const char *fmt, ...) {
