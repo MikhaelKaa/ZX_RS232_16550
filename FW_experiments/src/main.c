@@ -227,7 +227,7 @@ command_t cmd_list[] = {
 };
 void main() {
     uart_init();
-    
+    clear_screen();
     init_screen();
     printf("\r\n\r\n***********************\r\n");
     printf("init 0\r\n");

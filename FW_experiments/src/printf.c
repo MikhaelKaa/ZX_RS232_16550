@@ -117,7 +117,8 @@ static void uart_putchar_wrapper(char c, void* ctx) {
 static void zxscr_putchar_wrapper(char c, void* ctx) {
     (void)ctx;
     // if(IS_CONTROL_CHAR(c))putchar_zx_scr(c);
-    putchar_zx_scr(c);
+    // putchar_zx_scr(c);
+    terminal_putchar(c);
 }
 
 void printf(const char *fmt, ...) {
